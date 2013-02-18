@@ -1,0 +1,6 @@
+name = "input_form"
+description = "Gives an example of a drupal form."
+core = 7.x
+package = Views
+version = VERSION
+files[] = mine.module

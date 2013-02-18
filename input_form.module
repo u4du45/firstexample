@@ -1,0 +1,95 @@
+<?php
+function input_form_menu(){
+  $items['admin/config/input_form'] = array(
+    'title' => 'Our form',
+    'access arguments' => TRUE,
+  );
+  $items['admin/config/input_form/manage']  = array(
+     'title' => 'Input Form',
+     'description' => 'Here you can manage our form2',
+     'page callback' => 'drupal_get_form', 
+     'page arguments' =>array('input_form_form'),
+     'access arguments' => TRUE,
+  );
+  return $items;
+}
+
+function input_form_form($node, &$form_state) {
+  //$type = node_type_get_type($node);
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Input a title please:'),
+    '#required' => TRUE,
+    '#weight' => -5,
+  );
+
+  $form['description'] = array(
+   '#type' => 'textarea',
+   '#title' => t('input a description please:'),
+   '#required' => TRUE,
+   '#weight' => -4,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'button',
+    '#value' => t('add'),
+    
+  '#submit' => array('input_form_form_submit'),
+    
+  );
+
+  
+    $form['selectbox'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose type'),
+    '#default_value' => $node->selectbox,
+    '#weight' => -3,
+    '#options' => array(
+      0 => 'Base Page',
+      1 => 'Article',
+      
+    ),
+    '#description' => t('Select type please:'),
+  );
+
+  
+
+ return ($form);
+
+
+
+}
+
+function input_form_form_submit($form, &$form_state){
+
+  global $user;
+
+  $node = new stdClass();
+  $node->title = $form_state['values']['nodetitle'];
+if ($form_state['values']['selected'] == '1') $node->type = "article"; 
+    else  $node->type = "basic page";
+  $node->language = LANGUAGE_NONE;
+  $node->body[$node->language][0]['value']   = $form_state['values']['body'];
+  node_object_prepare($node); 
+ 
+  $node->uid = $user->uid; 
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; //2 = comments on, 1 = comments off
+
+  
+  $node = node_submit($node); // Prepare node for saving
+  node_save($node);
+  drupal_set_message( "Node with nid " . $node->nid . " saved!\n");
+
+}
+}
+/*
+function mine_form2_form_submit($form, &$form_state){
+  dpm($form_state);
+ /* $form_state['rebuild'] = TRUE;
+  variable_set('failed_login_user_window',$form_state['values']['failed_login_user_window']);
+  variable_set('failed_login_user_limit',$form_state['values']['failed_login_user_limit']);
+
+*/
